@@ -20,6 +20,10 @@ int main(int argc, char const *argv[])
         exit(1);
     }
 
+    FILE* pidFile = fopen("/tmp/server.pid", "w");
+    fprintf(pidFile, "%d", getpid());
+    fclose(pidFile);
+
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
         error("ERROR opening socket");
