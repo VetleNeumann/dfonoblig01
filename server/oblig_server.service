@@ -4,9 +4,9 @@ After network.target = auditd.service
 
 [Service]
 Type = forking
-ExecStart = /usr/local/bin/start oblig_serverd.sh
-ExecStop = /usr/local/bin/stop oblig_serverd.sh
-ExecReload = /usr/local/bin/reload oblig_serverd.sh
+ExecStart = /usr/local/bin/oblig_serverd.sh start
+ExecStop = /usr/local/bin/oblig_serverd.sh stop
+ExecReload = /usr/local/bin/oblig_serverd.sh reload
 
 [Install]
 WantedBy = multi-user.target
