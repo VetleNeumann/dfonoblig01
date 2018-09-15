@@ -1,0 +1,12 @@
+[Unit]
+Description = Oblig Server daemon
+After network.target = auditd.service
+
+[Service]
+Type = forking
+ExecStart = /usr/local/bin/start oblig_serverd.sh
+ExecStop = /usr/local/bin/stop oblig_serverd.sh
+ExecReload = /usr/local/bin/reload oblig_serverd.sh
+
+[Install]
+WantedBy = multi-user.target
