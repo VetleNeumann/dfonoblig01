@@ -5,7 +5,7 @@
 function d_start()
 {
     echo "Oblig Server: starting service"
-    server 80
+    oblig_server 80
     sleep 5
     echo "PID id $(cat /tmp/oblig_server.pid)"
 }
