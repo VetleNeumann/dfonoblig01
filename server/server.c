@@ -20,7 +20,7 @@ int main(int argc, char const *argv[])
         exit(1);
     }
 
-    FILE* pidFile = fopen("/tmp/server.pid", "w");
+    FILE* pidFile = fopen("/tmp/oblig_server.pid", "w");
     fprintf(pidFile, "%d", getpid());
     fclose(pidFile);
 
