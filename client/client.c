@@ -43,11 +43,16 @@ int main(int argc, char const *argv[])
 
     if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
         error("ERROR connecting");
-
     bzero(buffer, 1024);
+    buffer[0] = 0x1;
+    unsigned messageSize1 = htons((short)7);
+    memcpy(buffer + 1, &messageSize1, 2);
+    buffer[3] = 6;
     char* studentID = "014316";
-    bcopy(studentID, &buffer, strlen(studentID));
-    n = write(sockfd, buffer, strlen(studentID));
+    memcpy(buffer + 4, studentID, 6);
+    n = write(sockfd, buffer, 10);
+    for (int i = 0; i < 10; ++i)
+        printf("%x ", *(((char*)buffer) + i));
     if (n < 0)
         error("ERROR writing to socket");
     bzero(buffer, 1024);
@@ -55,6 +60,17 @@ int main(int argc, char const *argv[])
     if (n < 0)
         error("ERROR reading from socket");
     printf("%s", buffer);
+
+    unsigned char messageID;
+    unsigned short messageSize;
+    unsigned short textSize;
+    memcpy(&messageID, buffer, 1);
+    memcpy(&messageSize, buffer + 1, 2);
+    memcpy(&textSize, buffer + 3, 2);
+    messageSize = ntohs(messageSize);
+    textSize = ntohs(textSize);
+
+    printf("%i %i %i %s", messageID, messageSize, textSize, buffer + 5);
     
     return 0;
 }
