@@ -51,15 +51,14 @@ int main(int argc, char const *argv[])
     char* studentID = "014316";
     memcpy(buffer + 4, studentID, 6);
     n = write(sockfd, buffer, 10);
-    for (int i = 0; i < 10; ++i)
-        printf("%x ", *(((char*)buffer) + i));
+    // for (int i = 0; i < 10; ++i)
+    //     printf("%x ", *(((char*)buffer) + i));
     if (n < 0)
         error("ERROR writing to socket");
     bzero(buffer, 1024);
     n = read(sockfd, buffer, 1024);
     if (n < 0)
         error("ERROR reading from socket");
-    printf("%s", buffer);
 
     unsigned char messageID;
     unsigned short messageSize;
