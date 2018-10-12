@@ -24,21 +24,26 @@ void handleClient(int newsockfd)
     if (n < 0)
         error("ERROR reading from socket");
 
+    char errorByte = 0x00;
+    if (buffer[0] != 0x01) {
+      errorByte += 0x01;
+    }
+    short messageLength = (((short)buffer[1]) << 8) | (0x00ff & buffer[2]);
+    if (messageLength != n - 3) {
+      errorByte += 0x02;
+    }
+    if (buffer[3] != n - 4) {
+      errorByte += 0x04;
+    }
     if (n == 10) {
-        if (buffer[0] != 0x01) {
-            char* response = "Ugyldig kommando";
-            n = write(newsockfd, response, strlen(response));
-            return;
-        }
         char filename[100] = "res";
         strcat(filename, buffer + 4);
         printf("opening %s\n", filename);
         FILE* handle = fopen(filename, "r");
         if (handle == NULL) {
-            char* response = "Ugyldig studentnummer";
-            n = write(newsockfd, response, strlen(response));
+            errorByte += 0x08;
         }
-        else {
+        else if (errorByte == 0) {
             bzero(buffer, 1024);
             buffer[0] = 0x2;
             int ch, idx = 5;
@@ -50,12 +55,35 @@ void handleClient(int newsockfd)
             memcpy(buffer + 1, &messageSize, 2);
             memcpy(buffer + 3, &textSize, 2);
             n = write(newsockfd, buffer, idx) - 1;
+            return;
         }
     }
     else {
-        char* errorMessage = "Ukjent kommando";
-        n = write(newsockfd, errorMessage, strlen(errorMessage));
-        if (n < 0)
-            error("ERROR writing to socket");
+        errorByte += 0x10;
     }
+
+    char response[512] = {0};
+    if ((errorByte & 0x01) > 0) {
+      strcat(response, "\nUkjent kommando ID");
+    }
+    if ((errorByte & 0x02) > 0) {
+      strcat(response, "\nAngitt datalengde matcher ikke datalengden");
+    }
+    if ((errorByte & 0x04) > 0) {
+      strcat(response, "\nStudentnr størrelse matcher ikke angitt studentnr");
+    }
+    if ((errorByte & 0x08) > 0) {
+      strcat(response, "\nUgyldig studentnummer");
+    }
+    if ((errorByte & 0x10) > 0) {
+      strcat(response, "\nUforventet meldingslengde");
+    }
+    strcat(response, "\nServeren mottok: \n");
+    for (int i = 0; i < 4; i++)
+      buffer[i] += 48;
+    strcat(response, buffer);
+
+    n = write(newsockfd, response+1, 511);
+    if (n < 0)
+      error("ERROR writing to socket");
 }
